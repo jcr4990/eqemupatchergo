@@ -28,7 +28,7 @@ func main() {
 		break
 	}
 
-	w := a.NewWindow(fmt.Sprintf("%s v%s", serverName, Version))
+	w := a.NewWindow(fmt.Sprintf("%s v%s", serverName, version))
 	c, err := client.New(w)
 	if err != nil {
 		fmt.Println("client new:", err)
