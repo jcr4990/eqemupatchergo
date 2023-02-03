@@ -1,4 +1,4 @@
-module github.com/xackery/eqgzi-manager
+module github.com/xackery/eqemupatchergo
 
 go 1.19
 

@@ -5,8 +5,9 @@ import (
 	"log"
 	"os"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"github.com/xackery/eqgzi-manager/client"
+	"github.com/xackery/eqemupatchergo/client"
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	}
 
 	w.SetContent(c.GetContent())
+	w.Resize(fyne.NewSize(305, 371))
 	w.CenterOnScreen()
 	w.ShowAndRun()
 }
