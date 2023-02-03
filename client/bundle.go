@@ -10,3 +10,8 @@ var VersionText = &fyne.StaticResource{
 	StaticContent: []byte(
 		"0.0.1\n"),
 }
+var NameText = &fyne.StaticResource{
+	StaticName: "name.txt",
+	StaticContent: []byte(
+		"# Change to your server name\neqemupatcher"),
+}

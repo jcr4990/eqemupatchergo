@@ -1,0 +1,2 @@
+# Change below to your server name
+eqemupatcher

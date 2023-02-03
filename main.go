@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"fyne.io/fyne/v2/app"
 	"github.com/xackery/eqgzi-manager/client"
@@ -21,7 +22,19 @@ func main() {
 
 	a := app.New()
 
-	w := a.NewWindow(fmt.Sprintf("eqgzi-manager v%s", Version))
+	serverNameRaw := client.NameText.Content()
+	lines := strings.Split(string(serverNameRaw), "\n")
+	serverName := "eqemupatcher"
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		serverName = line
+		break
+	}
+
+	w := a.NewWindow(fmt.Sprintf("%s v%s", serverName, Version))
 	c, err := client.New(w)
 	if err != nil {
 		fmt.Println("client new:", err)
