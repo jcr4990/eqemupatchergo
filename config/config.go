@@ -21,7 +21,7 @@ type Config struct {
 	LanternVersion string `toml:"lantern_version" desc:"Last downloaded LanternExtractor version"`
 }
 
-// NewConfig creates a new configuration
+// New creates a new configuration
 func New(ctx context.Context) (*Config, error) {
 	var f *os.File
 	cfg := Config{}

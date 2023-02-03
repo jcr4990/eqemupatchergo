@@ -13,6 +13,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// Client wraps the entire UI
 type Client struct {
 	mu             sync.RWMutex
 	currentPath    string
@@ -25,6 +26,7 @@ type Client struct {
 	cfg            *config.Config
 }
 
+// New creates a new client
 func New(window fyne.Window) (*Client, error) {
 	var err error
 	c := &Client{
@@ -57,6 +59,7 @@ func New(window fyne.Window) (*Client, error) {
 	return c, nil
 }
 
+// GetContent returns the current canvas, and is used by SetContent
 func (c *Client) GetContent() fyne.CanvasObject {
 	return c.canvas
 }

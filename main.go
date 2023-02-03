@@ -10,15 +10,9 @@ import (
 	"github.com/xackery/eqgzi-manager/client"
 )
 
-var (
-	Version string
-)
-
 func main() {
-	if Version == "" {
-		Version = string(client.VersionText.Content())
-	}
-	log.Println("initializing", Version)
+	version := string(client.VersionText.Content())
+	log.Println("initializing", version)
 
 	a := app.New()
 
