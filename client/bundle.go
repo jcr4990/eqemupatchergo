@@ -13,5 +13,10 @@ var VersionText = &fyne.StaticResource{
 var NameText = &fyne.StaticResource{
 	StaticName: "name.txt",
 	StaticContent: []byte(
-		"# Change to your server name\neqemupatcher"),
+		"# Change below to your server name\neqemupatcher"),
+}
+var UrlText = &fyne.StaticResource{
+	StaticName: "url.txt",
+	StaticContent: []byte(
+		"# Change to the url that eqemupatcher runs\nhttps://example.com/rof/"),
 }

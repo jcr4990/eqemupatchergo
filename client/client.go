@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/xackery/eqgzi-manager/config"
@@ -27,7 +28,7 @@ type Client struct {
 }
 
 // New creates a new client
-func New(window fyne.Window) (*Client, error) {
+func New(window fyne.Window, url string) (*Client, error) {
 	var err error
 	c := &Client{
 		window: window,
@@ -82,4 +83,19 @@ func (c *Client) addProgress(amount float64) float64 {
 
 func (c *Client) onDownloadButton() {
 
+}
+
+// Parse will parse a []byte and turn it into the first element
+func Parse(in []byte) string {
+	lines := strings.Split(string(in), "\n")
+	out := ""
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		out = line
+		break
+	}
+	return out
 }

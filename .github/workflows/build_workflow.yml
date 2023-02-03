@@ -1,7 +1,5 @@
 name: Platform Tests & Build
-on: [push, pull_request]
-permissions:
-  contents: read
+on: [push]
 
 jobs:
   platform_tests:

@@ -7,10 +7,12 @@ run:
 	go run main.go
 run-mobile:
 	go run -tags mobile main.go
-
+test:
+	go test ./...
 bundle:
 	fyne bundle --package client -name VersionText assets/version.txt > client/bundle.go
 	fyne bundle --package client -name NameText --append assets/name.txt >> client/bundle.go
+	fyne bundle --package client -name UrlText --append assets/url.txt >> client/bundle.go
 	echo ${VERSION} > "assets/version.txt"
 build-all: build-darwin build-ios build-linux build-windows build-android
 build-darwin:
