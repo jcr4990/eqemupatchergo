@@ -91,6 +91,7 @@ func getDefaultConfig() Config {
 	return cfg
 }
 
+// Save writes the config to disk
 func (c *Config) Save() error {
 	w, err := os.Create("eqgzi-manager.conf")
 	if err != nil {

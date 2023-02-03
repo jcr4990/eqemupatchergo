@@ -1,4 +1,4 @@
-name: Platform Tests
+name: Platform Tests & Build
 on: [push, pull_request]
 permissions:
   contents: read
@@ -58,7 +58,8 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
-        prerelease: true
+        prerelease: false
         title: "Build"
         files: |
-          eqemupatchergo.exe  
+          eqemupatchergo.exe
+      if: ${{runner.os == 'Windows'}}
