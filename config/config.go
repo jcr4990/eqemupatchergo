@@ -4,28 +4,23 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"runtime"
 
 	"github.com/jbsmith7741/toml"
 )
 
 // Config represents a configuration parse
 type Config struct {
-	BlenderPath    string `toml:"blender_path" desc:"Blender Path to start Blender from"`
-	EQPath         string `toml:"eq_path" desc:"EverQuest Path to copy converted zones to"`
-	IsEQCopy       bool   `toml:"eq_copy" desc:"copy eqgzi output to eq path"`
-	LastZone       string `toml:"last_zone" desc:"Last zone selected"`
-	ServerPath     string `toml:"server_path" desc:"EQEmu Server Path, if any"`
-	IsServerCopy   bool   `toml:"server_copy" desc:"copy eqgzi output to server path"`
-	EQGZIVersion   string `toml:"eqgzi_version" desc:"Last downloaded EQGZI version"`
-	LanternVersion string `toml:"lantern_version" desc:"Last downloaded LanternExtractor version"`
+	AutoPlay           string `toml:"AutoPlay" desc:"Blender Path to start Blender from"`
+	AutoPatch          string `toml:"AutoPatch" desc:"EverQuest Path to copy converted zones to"`
+	ClientVersion      string `toml:"eq_copy" desc:"copy eqgzi output to eq path"`
+	LastPatchedVersion string `toml:"last_zone" desc:"Last zone selected"`
 }
 
 // New creates a new configuration
 func New(ctx context.Context) (*Config, error) {
 	var f *os.File
 	cfg := Config{}
-	path := "eqgzi-manager.conf"
+	path := "eqemupatcher.yml"
 
 	isNewConfig := false
 	fi, err := os.Stat(path)
@@ -35,7 +30,7 @@ func New(ctx context.Context) (*Config, error) {
 		}
 		f, err = os.Create(path)
 		if err != nil {
-			return nil, fmt.Errorf("create eqgzi-manager.conf: %w", err)
+			return nil, fmt.Errorf("create eqemupatcher.yml: %w", err)
 		}
 		fi, err = os.Stat(path)
 		if err != nil {
@@ -52,7 +47,7 @@ func New(ctx context.Context) (*Config, error) {
 
 	defer f.Close()
 	if fi.IsDir() {
-		return nil, fmt.Errorf("eqgzi-manager.conf is a directory, should be a file")
+		return nil, fmt.Errorf("eqemupatcher.yml is a directory, should be a file")
 	}
 
 	if isNewConfig {
@@ -67,7 +62,7 @@ func New(ctx context.Context) (*Config, error) {
 
 	_, err = toml.DecodeReader(f, &cfg)
 	if err != nil {
-		return nil, fmt.Errorf("decode eqgzi-manager.conf: %w", err)
+		return nil, fmt.Errorf("decode eqemupatcher.yml: %w", err)
 	}
 
 	return &cfg, nil
@@ -81,21 +76,15 @@ func (c *Config) Verify() error {
 
 func getDefaultConfig() Config {
 	cfg := Config{}
-	if runtime.GOOS == "darwin" {
-		_, err := os.Stat("/Applications/Blender.app")
-		if err == nil {
-			cfg.BlenderPath = "/Applications/Blender.app/Contents/MacOS/Blender"
-		}
-	}
 
 	return cfg
 }
 
 // Save writes the config to disk
 func (c *Config) Save() error {
-	w, err := os.Create("eqgzi-manager.conf")
+	w, err := os.Create("eqemupatcher.yml")
 	if err != nil {
-		return fmt.Errorf("create eqgzi-manager.conf: %w", err)
+		return fmt.Errorf("create eqemupatcher.yml: %w", err)
 	}
 	defer w.Close()
 

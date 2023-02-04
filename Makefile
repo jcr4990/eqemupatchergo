@@ -4,7 +4,8 @@ ICON_PNG ?= icon.png
 PACKAGE_NAME ?= com.xackery.eqemupatcher
 
 run:
-	go run main.go
+	@-mkdir -p bin
+	cd bin && go run ../main.go
 run-mobile:
 	go run -tags mobile main.go
 test:

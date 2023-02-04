@@ -18,7 +18,7 @@ var NameText = &fyne.StaticResource{
 var UrlText = &fyne.StaticResource{
 	StaticName: "url.txt",
 	StaticContent: []byte(
-		"# Change to the url that eqemupatcher runs\nhttps://example.com/rof/"),
+		"# Change to the url that eqemupatcher runs\n# https://example.com/rof/\nhttps://raw.githubusercontent.com/EverQuestParty/client/main/"),
 }
 var RoFImage = &fyne.StaticResource{
 	StaticName: "rof.png",
