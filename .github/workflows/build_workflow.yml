@@ -32,13 +32,14 @@ jobs:
     - name: Build filelist
       run: |
         cd rof
-        echo "env: ${{env.GITHUB_ACTION_REPOSITORY}}"
+        echo "env: $GITHUB_ACTION_REPOSITORY"
         echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
         chmod +x filelistbuilder-linux-x64
-        echo -e "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${{env.GITHUB_ACTION_REPOSITORY}}/assets/rof" > filelistbuilder.yml
+        echo -e "client: rof\n" > filelistbuilder.yml
+        echo "downloadprefix: https://raw.githubusercontent.com/$GITHUB_ACTION_REPOSITORY/assets/rof" >> filelistbuilder.yml
         ./filelistbuilder-linux-x64
-        cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/${{env.GITHUB_ACTION_REPOSITORY}}/releases/download/rof/filelist_rof.yml" > assets/url.txt
+        cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/$GITHUB_ACTION_REPOSITORY/releases/download/rof/filelist_rof.yml" > assets/url.txt
         echo "final url:"
         cat assets/url.txt
       if: ${{ runner.os == 'Linux' }}
