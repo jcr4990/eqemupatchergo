@@ -12,11 +12,11 @@ test:
 	go test ./...
 bundle:
 	@echo "bundle: creating client/bundle.go..."
+	echo ${VERSION} > "assets/version.txt"
 	fyne bundle --package client -name VersionText assets/version.txt > client/bundle.go
 	fyne bundle --package client -name NameText --append assets/name.txt >> client/bundle.go
 	fyne bundle --package client -name UrlText --append assets/url.txt >> client/bundle.go
 	fyne bundle --package client -name RoFImage --append assets/rof.png >> client/bundle.go
-	echo ${VERSION} > "assets/version.txt"
 build-all: build-darwin build-ios build-linux build-windows build-android
 build-darwin:
 	@echo "build-darwin: compiling"
