@@ -19,7 +19,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
 
     - name: Get dependencies
-      run: sudo apt-get update && sudo apt-get install gcc libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev libx11-dev xorg-dev libwayland-dev libxkbcommon-dev bc
+      run: sudo apt-get update && sudo apt-get install gcc libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev libx11-dev xorg-dev libwayland-dev libxkbcommon-dev bc wget
       if: ${{ runner.os == 'Linux' }}
 
     - name: Tests
@@ -27,6 +27,17 @@ jobs:
 
     - name: Wayland Tests
       run: go test -tags ci,wayland ./...
+      if: ${{ runner.os == 'Linux' }}
+
+    - name: Build filelist
+      run: |
+        cd rof && wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
+        pwd
+        echo "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${GITHUB_ACTION_REPOSITORY}/assets/rof" > rof/filelistbuilder.yml
+        filelistbuilder-linux-x64
+        echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
+        cd .. && cmp --silent assets/url.txt tmp.txt || echo "https://github.com/xackery/filelistbuilder/releases/download/rof/filelist_rof.yml" > assets/url.txt
+        cat assets/url.txt
       if: ${{ runner.os == 'Linux' }}
 
     - name: Update coverage
@@ -60,4 +71,15 @@ jobs:
         title: "Build"
         files: |
           eqemupatchergo.exe
+          rof/filelist_rof.yml
       if: ${{runner.os == 'Windows'}}
+
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "rof"
+        prerelease: false
+        title: "RoF Filelist"
+        files: |
+          rof/filelist_rof.yml
+      if: ${{runner.os == 'Linux'}}  

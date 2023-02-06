@@ -1,2 +1,1 @@
-# Change to the url that eqemupatcher runs
-https://example.com/rof/
+# Optional. If you host files elsewhere, place it below e.g. https://example.com/
