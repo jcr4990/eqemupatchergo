@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         go-version: [1.19]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -31,14 +31,19 @@ jobs:
 
     - name: Build filelist
       run: |
-        cd rof && wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
-        pwd
-        echo "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${GITHUB_ACTION_REPOSITORY}/assets/rof" > rof/filelistbuilder.yml
+        cd rof
+        wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
+        echo "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${GITHUB_ACTION_REPOSITORY}/assets/rof" > filelistbuilder.yml
         filelistbuilder-linux-x64
         echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
-        cd .. && cmp --silent assets/url.txt tmp.txt || echo "https://github.com/xackery/filelistbuilder/releases/download/rof/filelist_rof.yml" > assets/url.txt
+        cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/xackery/filelistbuilder/releases/download/rof/filelist_rof.yml" > assets/url.txt
         cat assets/url.txt
       if: ${{ runner.os == 'Linux' }}
+
+    - name: Build binary
+      run: |
+        go install github.com/fyne-io/fyne-cross@latest
+        make build-windows
 
     - name: Update coverage
       run: |
@@ -54,14 +59,6 @@ jobs:
       with:
         path-to-profile: coverage.out
       if: ${{ runner.os == 'Linux' && matrix.go-version == '1.19' }}
-
-    - name: Build Windows binary
-      env:
-        GOOS: windows
-        GOARCH: amd64
-      working-directory: .
-      run: go build
-      if: ${{runner.os == 'Windows'}}
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
