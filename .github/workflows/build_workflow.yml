@@ -55,6 +55,7 @@ jobs:
         go install fyne.io/fyne/v2/cmd/fyne@latest
         make bundle
         make build-windows
+        md5 -q bin/eqemupatchergo.exe > bin/eqemupatchergo-hash.txt
 
     - name: Update coverage
       run: |
@@ -79,5 +80,6 @@ jobs:
         title: "Build"
         files: |
           bin/eqemupatchergo.exe
+          bin/eqemupatchergo-hash.txt
           rof/filelist_rof.yml
           rof/patch.zip
