@@ -269,8 +269,8 @@ func (c *Client) refreshFileList() error {
 func (c *Client) refreshPatcherHash() error {
 	client := http.DefaultClient
 
-	updateUrl := Parse(UpdateUrlText.Content())
-	url := fmt.Sprintf("%s/eqemupatchergo-hash.txt", updateUrl)
+	updateURL := Parse(UpdateUrlText.Content())
+	url := fmt.Sprintf("%s/eqemupatchergo-hash.txt", updateURL)
 	fmt.Println("Downloading", url)
 	resp, err := client.Get(url)
 	if err != nil {
@@ -323,8 +323,8 @@ func (c *Client) onSelfUpdateButton() {
 
 	c.logf("Updating patcher...")
 	client := http.DefaultClient
-	updateUrl := Parse(UpdateUrlText.Content())
-	url := fmt.Sprintf("%s/eqemupatchergo.exe", updateUrl)
+	updateURL := Parse(UpdateUrlText.Content())
+	url := fmt.Sprintf("%s/eqemupatchergo.exe", updateURL)
 	fmt.Println("Downloading", url)
 	resp, err := client.Get(url)
 	if err != nil {

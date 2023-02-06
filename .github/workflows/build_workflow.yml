@@ -32,21 +32,19 @@ jobs:
 
     - name: Wayland Tests
       run: go test -tags ci,wayland ./...
-      if: ${{ runner.os == 'Linux' }}
 
     - name: Build filelist
       run: |
+        echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > assets/tmp.txt
         cd rof
-        echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
         chmod +x filelistbuilder-linux-x64
         echo -e "client: rof\n" > filelistbuilder.yml
         echo "downloadprefix: https://raw.githubusercontent.com/$GITHUB_ACTION_REPOSITORY/assets/rof" >> filelistbuilder.yml
         ./filelistbuilder-linux-x64
-        cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/$GITHUB_ACTION_REPOSITORY/releases/download/rof/filelist_rof.yml" > assets/url.txt
+        cd .. && cmp --silent assets/url.txt assets/tmp.txt || echo "https://github.com/$GITHUB_ACTION_REPOSITORY/releases/download/rof/filelist_rof.yml" > assets/url.txt
         echo "final url:"
         cat assets/url.txt
-      if: ${{ runner.os == 'Linux' }}
 
     - name: Build binary
       run: |
@@ -64,20 +62,18 @@ jobs:
         go test -tags ci -covermode=atomic -coverprofile=coverage.out ./...
         coverage=`go tool cover -func coverage.out | grep total | tr -s '\t' | cut -f 3 | grep -o '[^%]*'`
         if (( $(echo "$coverage < 10" | bc) )); then echo "Test coverage lowered"; exit 1; fi
-      if: ${{ runner.os == 'Linux' }}
 
     - name: Update PR Coverage
       uses: shogo82148/actions-goveralls@v1
       with:
         path-to-profile: coverage.out
-      if: ${{ runner.os == 'Linux' && matrix.go-version == '1.19' }}
 
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: false
-        title: "Build"
+        title: "Latest Release"
         files: |
           bin/eqemupatchergo.exe
           bin/eqemupatchergo-hash.txt
