@@ -62,7 +62,7 @@ func (c *Client) asyncPatch() {
 
 func (c *Client) patch() error {
 	start := time.Now()
-	c.patchButton.Importance = widget.LowImportance
+	c.patchButton.Importance = widget.MediumImportance
 
 	c.mu.Lock()
 	fileList := c.cacheFileList

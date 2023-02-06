@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"os"
 )
 
 func (c *Client) onPlayButton() {
@@ -21,8 +22,11 @@ func (c *Client) onPlayButton() {
 	cmd.Dir = currentPath
 	err := cmd.Run()
 	if err != nil {
-		c.logf("Failed to run: %s", err)
+		c.logf("Failed to run EverQuest: %s", err)
+		return
 	}
+
+	os.Exit(0)
 
 	/*
 	   stdout, err := cmd.StdoutPipe()

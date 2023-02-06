@@ -283,12 +283,13 @@ func (c *Client) refreshPatcherHash() error {
 	if err != nil {
 		return fmt.Errorf("read %s: %w", url, err)
 	}
+	remoteHash := strings.TrimSpace(string(data))
 	c.mu.Lock()
 	myHash := c.cfg.PatcherHash
-	c.remoteHash = string(data)
+	c.remoteHash = remoteHash
 	c.mu.Unlock()
-	fmt.Println("remote hash ", c.remoteHash, "my hash", myHash)
-	if c.remoteHash != myHash { // && runtime.GOOS == "windows" {
+	fmt.Println("remote hash:", remoteHash, ", my hash:", myHash)
+	if remoteHash != "Not Found" && remoteHash != myHash { // && runtime.GOOS == "windows" {
 		c.selfUpdateButton.Show()
 	}
 	return nil
@@ -301,6 +302,7 @@ func (c *Client) onSelfUpdateButton() {
 	remoteHash := c.remoteHash
 	c.mu.RUnlock()
 
+	c.selfUpdateButton.Hide()
 	c.patchButton.Disable()
 	defer c.patchButton.Enable()
 	c.downloadDisable()

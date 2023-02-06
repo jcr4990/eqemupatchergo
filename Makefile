@@ -2,7 +2,7 @@ NAME ?= eqemupatchergo
 VERSION ?= 0.0.3
 ICON_PNG ?= icon.png
 PACKAGE_NAME ?= com.xackery.eqemupatcher
-GITHUB_ACTION_PATH ?= xackery/eqemupatcher
+GITHUB_ACTION_PATH ?= xackery/eqemupatchergo
 
 run:
 	@-mkdir -p bin
