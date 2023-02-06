@@ -33,12 +33,14 @@ jobs:
       run: |
         cd rof
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
-        echo -e "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${{env:GITHUB_ACTION_REPOSITORY}}/assets/rof" > filelistbuilder.yml
+        echo -e "client: rof\ndownloadprefix: https://raw.githubusercontent.com/$REPO/assets/rof" > filelistbuilder.yml
         chmod +x filelistbuilder-linux-x64
         ./filelistbuilder-linux-x64
         echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
         cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/xackery/filelistbuilder/releases/download/rof/filelist_rof.yml" > assets/url.txt        
         cat assets/url.txt
+      with:
+        REPO: ${{env.GITHUB_ACTION_REPOSITORY}}
       if: ${{ runner.os == 'Linux' }}
 
     - name: Build binary
