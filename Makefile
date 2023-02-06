@@ -1,5 +1,5 @@
 NAME ?= eqemupatchergo
-VERSION ?= 0.0.1
+VERSION ?= 0.0.2
 ICON_PNG ?= icon.png
 PACKAGE_NAME ?= com.xackery.eqemupatcher
 
@@ -11,6 +11,7 @@ run-mobile:
 test:
 	go test ./...
 bundle:
+	@echo "bundle: creating client/bundle.go..."
 	fyne bundle --package client -name VersionText assets/version.txt > client/bundle.go
 	fyne bundle --package client -name NameText --append assets/name.txt >> client/bundle.go
 	fyne bundle --package client -name UrlText --append assets/url.txt >> client/bundle.go
@@ -25,7 +26,7 @@ build-darwin:
 	@time fyne package -os darwin -icon ${ICON_PNG} --appVersion ${VERSION} --tags main.Version=${VERSION}
 	@zip -mvr bin/${NAME}-${VERSION}-darwin.zip ${NAME}.app -x "*.DS_Store"
 build-linux:
-	@echo "Building linux"
+	@echo "build-linux: compiling"
 	@-mkdir -p bin
 	@-rm -rf bin/${NAME}-linux
 	@time fyne-cross linux -icon ${ICON_PNG}

@@ -109,6 +109,11 @@ func (c *Client) patch() error {
 		default:
 		}
 
+		if strings.Contains(entry.Name, "..") {
+			c.logf("Skipping %s, has .. inside it", entry.Name)
+			continue
+		}
+
 		if strings.Contains(entry.Name, "/") {
 			newPath := strings.TrimSuffix(entry.Name, filepath.Base(entry.Name))
 			err = os.MkdirAll(newPath, os.ModePerm)
@@ -150,6 +155,35 @@ func (c *Client) patch() error {
 		progressSize += int64(entry.Size)
 		totalDownloaded += int64(entry.Size)
 		c.progressBar.SetValue(float64(progressSize) / float64(totalSize))
+	}
+
+	for _, entry := range fileList.Deletes {
+		select {
+		case <-c.cancel:
+			return fmt.Errorf("cancelled by user")
+		default:
+		}
+		if strings.Contains(entry.Name, "..") {
+			c.logf("Skipping %s, has .. inside it", entry.Name)
+			continue
+		}
+		fi, err := os.Stat(entry.Name)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return fmt.Errorf("stat %s: %w", entry.Name, err)
+		}
+		if fi.IsDir() {
+			c.logf("Skipping deleting %s, it is a directory", entry.Name)
+			continue
+		}
+		err = os.Remove(entry.Name)
+		if err != nil {
+			c.logf("Failed to delete %s: %s", entry.Name, err)
+			continue
+		}
+		c.logf("%s removed", entry.Name)
 	}
 
 	c.cfg.LastPatchedVersion = fileList.Version
