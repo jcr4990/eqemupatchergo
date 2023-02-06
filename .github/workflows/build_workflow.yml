@@ -33,7 +33,7 @@ jobs:
       run: |
         cd rof
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
-        echo -e "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${{$env:GITHUB_ACTION_REPOSITORY}}/assets/rof" > filelistbuilder.yml
+        echo -e "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${{env:GITHUB_ACTION_REPOSITORY}}/assets/rof" > filelistbuilder.yml
         chmod +x filelistbuilder-linux-x64
         ./filelistbuilder-linux-x64
         echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
