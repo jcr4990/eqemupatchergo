@@ -52,6 +52,7 @@ jobs:
     - name: Build binary
       run: |
         go install github.com/fyne-io/fyne-cross@latest
+        go install fyne.io/fyne/v2/cmd/fyne@latest
         make bundle
         make build-windows
 
