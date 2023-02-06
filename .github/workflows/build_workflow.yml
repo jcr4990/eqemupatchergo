@@ -54,7 +54,8 @@ jobs:
         go install fyne.io/fyne/v2/cmd/fyne@latest
         make bundle
         make build-windows
-        md5sum -q bin/eqemupatchergo.exe > bin/eqemupatchergo-hash.txt
+        md5=($(md5sum -b bin/eqemupatchergo.exe))
+        echo $md5 > bin/eqemupatchergo-hash.txt
 
     - name: Update coverage
       run: |
