@@ -64,3 +64,21 @@ func (c *Client) onPlayButton() {
 	   c.logf("Created %s.eqg", zone)
 	*/
 }
+
+func (c *Client) onAutoPlayCheck(value bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if value {
+		c.cfg.AutoPlay = "true"
+		err := c.cfg.Save()
+		if err != nil {
+			fmt.Println("failed to save autoplay:", err)
+		}
+		return
+	}
+	c.cfg.AutoPlay = "false"
+	err := c.cfg.Save()
+	if err != nil {
+		fmt.Println("failed to save autoplay:", err)
+	}
+}

@@ -2,18 +2,20 @@ package config
 
 import (
 	"context"
+	"crypto/md5"
 	"fmt"
+	"io"
 	"os"
 
-	"github.com/jbsmith7741/toml"
+	"gopkg.in/yaml.v3"
 )
 
 // Config represents a configuration parse
 type Config struct {
-	AutoPlay           string `toml:"AutoPlay" desc:"Blender Path to start Blender from"`
-	AutoPatch          string `toml:"AutoPatch" desc:"EverQuest Path to copy converted zones to"`
-	ClientVersion      string `toml:"eq_copy" desc:"copy eqgzi output to eq path"`
-	LastPatchedVersion string `toml:"last_zone" desc:"Last zone selected"`
+	AutoPlay      string `yaml:"AutoPlay" desc:"Automatically Play"`
+	AutoPatch     string `yaml:"AutoPatch" desc:"Automatically patch"`
+	ClientVersion string `yaml:"ClientVersion" desc:"Version of client patched"`
+	PatcherHash   string `yaml:"PatcherHash" desc:"Hash of current patcher"`
 }
 
 // New creates a new configuration
@@ -51,7 +53,7 @@ func New(ctx context.Context) (*Config, error) {
 	}
 
 	if isNewConfig {
-		enc := toml.NewEncoder(f)
+		enc := yaml.NewEncoder(f)
 		cfg = getDefaultConfig()
 		err = enc.Encode(cfg)
 		if err != nil {
@@ -60,7 +62,7 @@ func New(ctx context.Context) (*Config, error) {
 		return &cfg, nil
 	}
 
-	_, err = toml.DecodeReader(f, &cfg)
+	err = yaml.NewDecoder(f).Decode(&cfg)
 	if err != nil {
 		return nil, fmt.Errorf("decode eqemupatcher.yml: %w", err)
 	}
@@ -75,7 +77,29 @@ func (c *Config) Verify() error {
 }
 
 func getDefaultConfig() Config {
-	cfg := Config{}
+	cfg := Config{
+		AutoPlay:  "false",
+		AutoPatch: "false",
+	}
+
+	if len(os.Args) == 0 {
+		return cfg
+	}
+
+	f, err := os.Open(os.Args[0])
+	if err != nil {
+		fmt.Println("open:", err)
+		return cfg
+	}
+	defer f.Close()
+
+	h := md5.New()
+	_, err = io.Copy(h, f)
+	if err != nil {
+		fmt.Println("copy:", err)
+		return cfg
+	}
+	cfg.PatcherHash = fmt.Sprintf("%x", h.Sum(nil))
 
 	return cfg
 }
@@ -88,7 +112,7 @@ func (c *Config) Save() error {
 	}
 	defer w.Close()
 
-	enc := toml.NewEncoder(w)
+	enc := yaml.NewEncoder(w)
 	err = enc.Encode(c)
 	if err != nil {
 		return fmt.Errorf("encode default: %w", err)

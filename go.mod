@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	fyne.io/fyne/v2 v2.3.0
-	github.com/jbsmith7741/toml v0.3.1-0.20171003150610-484e047de162
+	github.com/fynelabs/selfupdate v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

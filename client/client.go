@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"image/png"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -19,29 +20,34 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/fynelabs/selfupdate"
 )
 
 // Client wraps the entire UI
 type Client struct {
-	mu              sync.RWMutex
-	cancel          chan bool
-	url             string
-	currentPath     string
-	clientVersion   string
-	cacheFileList   *FileList
-	logScroll       *container.Scroll
-	logLabel        *widget.Label
-	copyLogButton   *widget.Button
-	progressBar     *widget.ProgressBar
-	canvas          fyne.CanvasObject
-	mainCanvas      fyne.CanvasObject
-	patchButton     *widget.Button
-	playButton      *widget.Button
-	splashImage     *canvas.Image
-	statusLabel     *widget.Label
-	window          fyne.Window
-	cfg             *config.Config
-	isAutoPatchPlay bool
+	mu               sync.RWMutex
+	cancel           chan bool
+	url              string
+	currentPath      string
+	clientVersion    string
+	remoteHash       string
+	cacheFileList    *FileList
+	logScroll        *container.Scroll
+	logLabel         *widget.Label
+	copyLogButton    *widget.Button
+	progressBar      *widget.ProgressBar
+	canvas           fyne.CanvasObject
+	mainCanvas       fyne.CanvasObject
+	selfUpdateButton *widget.Button
+	patchButton      *widget.Button
+	playButton       *widget.Button
+	autoPlayCheck    *widget.Check
+	autoPatchCheck   *widget.Check
+	splashImage      *canvas.Image
+	statusLabel      *widget.Label
+	window           fyne.Window
+	cfg              *config.Config
+	isAutoPatchPlay  bool
 }
 
 // New creates a new client
@@ -74,8 +80,13 @@ func New(window fyne.Window, url string) (*Client, error) {
 
 	c.patchButton = widget.NewButton("Patch", c.onPatchButton)
 	c.playButton = widget.NewButton("Play", c.onPlayButton)
-
+	c.autoPatchCheck = widget.NewCheck("Auto Patch", c.onAutoPatchCheck)
+	c.autoPatchCheck.Checked = c.cfg.AutoPatch == "true"
+	c.autoPlayCheck = widget.NewCheck("Auto Play", c.onAutoPlayCheck)
+	c.autoPlayCheck.Checked = c.cfg.AutoPlay == "true"
 	c.logLabel = widget.NewLabel("")
+
+	c.selfUpdateButton = widget.NewButton("Update Patcher", c.onSelfUpdateButton)
 	//c.logLabel.Wrapping = fyne.TextTruncate
 
 	c.logScroll = container.NewScroll(
@@ -102,7 +113,9 @@ func New(window fyne.Window, url string) (*Client, error) {
 		container.NewVBox(
 			container.NewHBox(
 				c.patchButton,
+				c.autoPatchCheck,
 				layout.NewSpacer(),
+				c.autoPlayCheck,
 				c.playButton,
 			),
 			/*container.NewBorder(
@@ -111,6 +124,7 @@ func New(window fyne.Window, url string) (*Client, error) {
 				c.patchButton,
 				c.playButton,
 			),*/
+			c.selfUpdateButton,
 			c.progressBar,
 			c.statusLabel,
 		),
@@ -189,15 +203,22 @@ func (c *Client) asyncVersionCheck() {
 		return
 	}
 
+	err = c.refreshPatcherHash()
+	if err != nil {
+		fmt.Println("ignoring failure to get patcher hash:", err)
+		return
+	}
+
 	c.mu.RLock()
 	version := c.cacheFileList.Version
-	myVersion := c.cfg.LastPatchedVersion
+	myPatchVersion := c.cfg.ClientVersion
 	autoPlay := c.cfg.AutoPlay
 	autoPatch := c.cfg.AutoPatch
 	c.mu.RUnlock()
+
 	isAutoPlay := strings.ToLower(autoPlay) == "true"
 	isAutoPatch := strings.ToLower(autoPatch) == "true"
-	if myVersion != version {
+	if myPatchVersion != version {
 		c.patchButton.Importance = widget.HighImportance
 		if isAutoPatch {
 			if isAutoPlay {
@@ -218,12 +239,18 @@ func (c *Client) asyncVersionCheck() {
 
 func (c *Client) refreshFileList() error {
 	client := http.DefaultClient
-	url := fmt.Sprintf("%s/%s/filelist_%s.yml", c.url, c.clientVersion, c.clientVersion)
+	url := fmt.Sprintf("%s/filelist_%s.yml", c.url, c.clientVersion)
 	fmt.Println("Downloading", url)
 	resp, err := client.Get(url)
 	if err != nil {
-		return fmt.Errorf("download %s: %w", url, err)
+		url := fmt.Sprintf("%s/%s/filelist_%s.yml", c.url, c.clientVersion, c.clientVersion)
+		fmt.Println("Downloading legacy", url)
+		resp, err = client.Get(url)
+		if err != nil {
+			return fmt.Errorf("download %s: %w", url, err)
+		}
 	}
+
 	defer resp.Body.Close()
 	fileList := &FileList{}
 
@@ -231,10 +258,82 @@ func (c *Client) refreshFileList() error {
 	if err != nil {
 		return fmt.Errorf("decode filelist: %w", err)
 	}
-	fmt.Println("patch version is", fileList.Version)
 	c.mu.Lock()
+	fmt.Println("patch version is", fileList.Version, "and we are version", c.cfg.ClientVersion)
 	c.cacheFileList = fileList
 	c.mu.Unlock()
 
 	return nil
+}
+
+func (c *Client) refreshPatcherHash() error {
+	client := http.DefaultClient
+
+	updateUrl := Parse(UpdateUrlText.Content())
+	url := fmt.Sprintf("%s/eqemupatchergo-hash.txt", updateUrl)
+	fmt.Println("Downloading", url)
+	resp, err := client.Get(url)
+	if err != nil {
+		return fmt.Errorf("download %s: %w", url, err)
+	}
+
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", url, err)
+	}
+	c.mu.Lock()
+	myHash := c.cfg.PatcherHash
+	c.remoteHash = string(data)
+	c.mu.Unlock()
+	fmt.Println("remote hash ", c.remoteHash, "my hash", myHash)
+	if c.remoteHash != myHash { // && runtime.GOOS == "windows" {
+		c.selfUpdateButton.Show()
+	}
+	return nil
+}
+
+func (c *Client) onSelfUpdateButton() {
+	c.refreshPatcherHash()
+	c.mu.RLock()
+	myHash := c.cfg.PatcherHash
+	remoteHash := c.remoteHash
+	c.mu.RUnlock()
+
+	c.patchButton.Disable()
+	defer c.patchButton.Enable()
+	c.downloadDisable()
+	defer c.downloadEnable()
+	c.splashImage.Hide()
+	c.statusLabel.Show()
+	c.progressBar.SetValue(0)
+
+	c.mu.Lock()
+	c.cancel = make(chan bool, 3)
+	c.mu.Unlock()
+
+	if myHash == remoteHash {
+		c.logf("Already up to date")
+		c.selfUpdateButton.Hide()
+		return
+	}
+
+	c.logf("Updating patcher...")
+	client := http.DefaultClient
+	updateUrl := Parse(UpdateUrlText.Content())
+	url := fmt.Sprintf("%s/eqemupatchergo.exe", updateUrl)
+	fmt.Println("Downloading", url)
+	resp, err := client.Get(url)
+	if err != nil {
+		c.logf("Download failed %s: %s", url, err)
+		return
+	}
+
+	err = selfupdate.Apply(resp.Body, selfupdate.Options{})
+	if err != nil {
+		c.logf("Update failed %s: %s", url, err)
+		return
+	}
+	defer resp.Body.Close()
 }

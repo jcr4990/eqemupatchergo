@@ -33,10 +33,12 @@ fyne_metadata_init.go
 *.syso
 *.rc
 
+assets/update_url.txt
+assets/version.txt
+
 fynn-cross*
 eqemupatcher.yml
 cache/
 zones/
 tools/
-assets/version.txt
 fyne-cross/

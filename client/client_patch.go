@@ -186,7 +186,7 @@ func (c *Client) patch() error {
 		c.logf("%s removed", entry.Name)
 	}
 
-	c.cfg.LastPatchedVersion = fileList.Version
+	c.cfg.ClientVersion = fileList.Version
 	err = c.cfg.Save()
 	if err != nil {
 		c.logf("Failed to save version to eqemupatch.yml: %s", err)
@@ -258,4 +258,22 @@ func generateSize(in int) string {
 	}
 	val /= 1024
 	return fmt.Sprintf("%0.2f TB", val)
+}
+
+func (c *Client) onAutoPatchCheck(value bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if value {
+		c.cfg.AutoPatch = "true"
+		err := c.cfg.Save()
+		if err != nil {
+			fmt.Println("failed to save autopatch:", err)
+		}
+		return
+	}
+	c.cfg.AutoPatch = "false"
+	err := c.cfg.Save()
+	if err != nil {
+		fmt.Println("failed to save autopatch:", err)
+	}
 }

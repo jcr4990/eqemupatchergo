@@ -8,7 +8,12 @@ import "fyne.io/fyne/v2"
 var VersionText = &fyne.StaticResource{
 	StaticName: "version.txt",
 	StaticContent: []byte(
-		"0.0.1\n"),
+		"0.0.2\n"),
+}
+var UpdateUrlText = &fyne.StaticResource{
+	StaticName: "update_url.txt",
+	StaticContent: []byte(
+		"https://github.com/xackery/eqemupatcher/releases/download/latest/\n"),
 }
 var NameText = &fyne.StaticResource{
 	StaticName: "name.txt",
@@ -18,7 +23,7 @@ var NameText = &fyne.StaticResource{
 var UrlText = &fyne.StaticResource{
 	StaticName: "url.txt",
 	StaticContent: []byte(
-		"# Change to the url that eqemupatcher runs\n# https://example.com/rof/\nhttps://raw.githubusercontent.com/EverQuestParty/client/main/"),
+		"# Optional. If you host files elsewhere, place it below e.g. https://example.com/\nhttps://github.com/xackery/eqemupatchergo/releases/download/latest/"),
 }
 var RoFImage = &fyne.StaticResource{
 	StaticName: "rof.png",
