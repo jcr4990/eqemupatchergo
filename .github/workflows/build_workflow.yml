@@ -18,9 +18,9 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
-    - name: Get dependencies
-      run: sudo apt-get update && sudo apt-get install bc wget
-      if: ${{ runner.os == 'Linux' }}
+#    - name: Get dependencies
+#      run: sudo apt-get update && sudo apt-get install bc wget
+ #     if: ${{ runner.os == 'Linux' }}
 
     - name: Tests
       run: go test -tags ci ./...
@@ -34,6 +34,7 @@ jobs:
         cd rof
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
         echo "client: rof\ndownloadprefix: https://raw.githubusercontent.com/${GITHUB_ACTION_REPOSITORY}/assets/rof" > filelistbuilder.yml
+        chmod +x filelistbuilder-linux-x64
         ./filelistbuilder-linux-x64
         echo "# Optional. If you host files elsewhere, place it below e.g. https://example.com/" > tmp.txt
         cd .. && cmp --silent assets/url.txt rof/tmp.txt || echo "https://github.com/xackery/filelistbuilder/releases/download/rof/filelist_rof.yml" > assets/url.txt
