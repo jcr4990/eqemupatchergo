@@ -267,13 +267,13 @@ func (c *Client) onAutoPatchCheck(value bool) {
 		c.cfg.AutoPatch = "true"
 		err := c.cfg.Save()
 		if err != nil {
-			fmt.Println("failed to save autopatch:", err)
+			c.logf("failed to save autopatch: %s", err)
 		}
 		return
 	}
 	c.cfg.AutoPatch = "false"
 	err := c.cfg.Save()
 	if err != nil {
-		fmt.Println("failed to save autopatch:", err)
+		c.logf("failed to save autopatch: %s", err)
 	}
 }
