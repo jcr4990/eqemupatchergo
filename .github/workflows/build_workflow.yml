@@ -40,7 +40,7 @@ jobs:
         wget https://github.com/xackery/filelistbuilder/releases/download/latest/filelistbuilder-linux-x64
         chmod +x filelistbuilder-linux-x64
         echo -e "client: rof\n" > filelistbuilder.yml
-        echo "downloadprefix: https://raw.githubusercontent.com/$GITHUB_ACTION_REPOSITORY/assets/rof" >> filelistbuilder.yml
+        echo "downloadprefix: https://raw.githubusercontent.com/jcr4990/eqemupatchergo/assets/rof" >> filelistbuilder.yml
         ./filelistbuilder-linux-x64
         cd .. && cmp --silent assets/url.txt assets/tmp.txt || echo "https://github.com/jcr4990/eqemupatchergo/releases/download/rof/filelist_rof.yml" > assets/url.txt
         echo "final url:"
