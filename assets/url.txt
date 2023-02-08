@@ -1,2 +1,2 @@
 # Optional. If you host files elsewhere, place it below e.g. https://example.com/
-https://github.com/xackery/eqemupatchergo/releases/download/latest/
+https://github.com/jcr4990/eqemupatchergo/releases/download/latest/
