@@ -1,0 +1,9 @@
+8
+rom,rom_chr
+roe,roe_chr
+tgl,tgl_chr
+tgo,tgo
+gdm,unrest_chr
+gem,paineel_chr
+ssn,karnor_chr
+sim,karnor_chr

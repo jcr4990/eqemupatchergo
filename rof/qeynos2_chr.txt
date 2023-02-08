@@ -1,0 +1,4 @@
+3
+min,steamfont_chr
+drk,westwastes_chr
+paf,paf_chr
