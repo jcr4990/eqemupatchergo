@@ -199,13 +199,13 @@ func (c *Client) onCopyLog() {
 func (c *Client) asyncVersionCheck() {
 	err := c.refreshFileList()
 	if err != nil {
-		fmt.Println("ignoring failure to patch:", err)
+		c.logf("ignoring failure to patch: %s", err)
 		return
 	}
 
 	err = c.refreshPatcherHash()
 	if err != nil {
-		fmt.Println("ignoring failure to get patcher hash:", err)
+		c.logf("ignoring failure to get patcher hash: %s", err)
 		return
 	}
 
@@ -240,11 +240,11 @@ func (c *Client) asyncVersionCheck() {
 func (c *Client) refreshFileList() error {
 	client := http.DefaultClient
 	url := fmt.Sprintf("%s/filelist_%s.yml", c.url, c.clientVersion)
-	fmt.Println("Downloading", url)
+	c.logf("Downloading %s", url)
 	resp, err := client.Get(url)
 	if err != nil {
 		url := fmt.Sprintf("%s/%s/filelist_%s.yml", c.url, c.clientVersion, c.clientVersion)
-		fmt.Println("Downloading legacy", url)
+		c.logf("Downloading legacy %s", url)
 		resp, err = client.Get(url)
 		if err != nil {
 			return fmt.Errorf("download %s: %w", url, err)
@@ -259,7 +259,7 @@ func (c *Client) refreshFileList() error {
 		return fmt.Errorf("decode filelist: %w", err)
 	}
 	c.mu.Lock()
-	fmt.Println("patch version is", fileList.Version, "and we are version", c.cfg.ClientVersion)
+	c.logf("patch version is %s and we are version %s", fileList.Version, c.cfg.ClientVersion)
 	c.cacheFileList = fileList
 	c.mu.Unlock()
 
@@ -271,7 +271,7 @@ func (c *Client) refreshPatcherHash() error {
 
 	updateURL := Parse(UpdateUrlText.Content())
 	url := fmt.Sprintf("%s/eqemupatchergo-hash.txt", updateURL)
-	fmt.Println("Downloading", url)
+	c.logf("Downloading %s", url)
 	resp, err := client.Get(url)
 	if err != nil {
 		return fmt.Errorf("download %s: %w", url, err)
@@ -288,7 +288,10 @@ func (c *Client) refreshPatcherHash() error {
 	myHash := c.cfg.PatcherHash
 	c.remoteHash = remoteHash
 	c.mu.Unlock()
-	fmt.Println("remote hash:", remoteHash, ", my hash:", myHash)
+	c.logf("remote hash: %s, my hash: %s", remoteHash, myHash)
+	if remoteHash == myHash {
+		c.logf("we are up to date")
+	}
 	if remoteHash != "Not Found" && remoteHash != myHash { // && runtime.GOOS == "windows" {
 		c.selfUpdateButton.Show()
 	}
@@ -325,7 +328,7 @@ func (c *Client) onSelfUpdateButton() {
 	client := http.DefaultClient
 	updateURL := Parse(UpdateUrlText.Content())
 	url := fmt.Sprintf("%s/eqemupatchergo.exe", updateURL)
-	fmt.Println("Downloading", url)
+	c.logf("Downloading %s", url)
 	resp, err := client.Get(url)
 	if err != nil {
 		c.logf("Download failed %s: %s", url, err)
@@ -338,4 +341,5 @@ func (c *Client) onSelfUpdateButton() {
 		return
 	}
 	defer resp.Body.Close()
+	c.logf("Updating completed")
 }

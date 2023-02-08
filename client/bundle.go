@@ -13,7 +13,7 @@ var VersionText = &fyne.StaticResource{
 var UpdateUrlText = &fyne.StaticResource{
 	StaticName: "update_url.txt",
 	StaticContent: []byte(
-		"https://github.com/xackery/eqemupatcher/releases/download/latest/\n"),
+		"https://github.com/xackery/eqemupatchergo/releases/download/latest/\n"),
 }
 var NameText = &fyne.StaticResource{
 	StaticName: "name.txt",

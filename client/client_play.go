@@ -76,13 +76,13 @@ func (c *Client) onAutoPlayCheck(value bool) {
 		c.cfg.AutoPlay = "true"
 		err := c.cfg.Save()
 		if err != nil {
-			fmt.Println("failed to save autoplay:", err)
+			c.logf("failed to save autoplay: %s", err)
 		}
 		return
 	}
 	c.cfg.AutoPlay = "false"
 	err := c.cfg.Save()
 	if err != nil {
-		fmt.Println("failed to save autoplay:", err)
+		c.logf("failed to save autoplay %s:", err)
 	}
 }
